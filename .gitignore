@@ -1,0 +1,24 @@
+# Carpetas de compilación y ejecutables
+/build/
+/bin/
+
+# Archivos generados por CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Archivos de compilación temporales
+*.o
+*.obj
+*.exe
+*.out
+*.log
+
+# Archivos temporales del editor o sistema operativo    
+*~
+.DS_Store
+Thumbs.db
+
+# Configuraciones de VS Code
+.vscode/
