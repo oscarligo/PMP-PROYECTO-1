@@ -1,1 +1,0 @@
-// Constantes para el proyecto
