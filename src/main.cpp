@@ -1,10 +1,16 @@
 #include <ncurses.h>
+#include "menu.h"
+
+// #include "constants.h" // Uncomment if constants are used
 
 int main() {
-    initscr();              // Inicializar ncurses
-    printw("Hola desde ncurses!");
-    refresh();              // Mostrar en pantalla
-    getch();                // Esperar una tecla
-    endwin();               // Terminar ncurses
+    initscr();
+    noecho();
+    cbreak();
+    keypad(stdscr, TRUE);
+
+    showMainMenu();
+
+    endwin();
     return 0;
 }
