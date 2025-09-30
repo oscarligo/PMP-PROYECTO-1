@@ -1,5 +1,5 @@
 #include <ncurses.h>
-#include "scores.h"
+#include "Scores.h"
 #include <fstream>
 #include <vector>
 #include <string>
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-vector<pair<string, int>> readScores(const string &filename) {
+vector<pair<string, int>> ReadScores(const string &filename) {
     vector<pair<string,int>> scores;
     ifstream file(filename);
 
@@ -33,19 +33,23 @@ vector<pair<string, int>> readScores(const string &filename) {
     return scores;
 }
 
-void showScores() {
+void ShowScores() {
     clear();
     int row, col; getmaxyx(stdscr,row,col);
 
-    auto scores = readScores("scores.txt");
+    auto scores = ReadScores("scores.txt");
 
     attron(A_BOLD);
     mvprintw(1, (col-10)/2, "PUNTAJES");
     attroff(A_BOLD);
 
     int y = 3;
-    for (auto &p : scores) {
-        mvprintw(y++, (col-20)/2, "%s : %d", p.first.c_str(), p.second);
+    if (scores.empty()) {
+        mvprintw(y, (col-30)/2, "No hay puntajes guardados todavía");
+    } else {
+        for (auto &p : scores) {
+            mvprintw(y++, (col-30)/2, "%s : %d", p.first.c_str(), p.second);
+        }
     }
 
     mvprintw(row-2, 2, "Presiona ESC para volver al menu");
@@ -55,4 +59,11 @@ void showScores() {
     while ((ch = getch()) != 27) {
         // espera hasta presionar ESC
     }
+}
+
+void SaveScore(const string &name, int score) {
+    ofstream file("scores.txt", ios::app);
+    if (!file.is_open()) return;
+    file << name << " " << score << "\n";
+    file.close();
 }

@@ -1,6 +1,9 @@
 #ifndef SCORES_H
 #define SCORES_H
 
-void showScores();
+#include <string>
+
+void ShowScores();
+void SaveScore(const std::string &name, int score);
 
 #endif

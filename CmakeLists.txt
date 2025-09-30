@@ -8,10 +8,13 @@ include_directories(include)
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
 
+# Buscar pthread
+find_package(Threads REQUIRED)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Re-scan sources when files are added/removed
 file(GLOB SOURCES CONFIGURE_DEPENDS "src/*.cpp")
 
 add_executable(PMP-PROYECTO-1 ${SOURCES})
-target_link_libraries(PMP-PROYECTO-1 ${CURSES_LIBRARIES})
+target_link_libraries(PMP-PROYECTO-1 ${CURSES_LIBRARIES} Threads::Threads)

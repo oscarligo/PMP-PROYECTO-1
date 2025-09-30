@@ -1,12 +1,12 @@
 #include <ncurses.h>
-#include "instructions.h"
+#include "Instructions.h"
 
-void showInstructions() {
+void ShowInstructions() {
     clear();
-    int h,w; getmaxyx(stdscr,h,w);
+    int ScreenHeight, ScreenWidth; getmaxyx(stdscr,ScreenHeight,ScreenWidth);
 
     attron(COLOR_PAIR(2) | A_BOLD);
-    mvprintw(2, (w-25)/2, "INSTRUCCIONES DE JUEGO");
+    mvprintw(2, (ScreenWidth-25)/2, "INSTRUCCIONES DE JUEGO");
     attroff(COLOR_PAIR(2) | A_BOLD);
 
     mvprintw(4,4,"Objetivo:");
@@ -26,11 +26,11 @@ void showInstructions() {
     mvprintw(18,6,"3 lineas:  +500 puntos");
     mvprintw(19,6,"4 lineas:  +800 puntos (TETRIS!)");
 
-    mvprintw(h-2, 2, "Presione ESC para volver al menu");    
+    mvprintw(ScreenHeight-2, 2, "Presione ESC para volver al menu");    
     
     refresh();
     
-    int ch;
-    while ((ch = getch()) != 27) {
+    int KeyCode;
+    while ((KeyCode = getch()) != 27) {
     }
 }
