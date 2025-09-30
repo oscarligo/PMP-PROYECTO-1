@@ -9,14 +9,13 @@
 namespace {
 
 void ProcessMoveLeft(GameState* state) {
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->moveLeftSem);
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->moveLeftRequest && state->activePieceReady) {
+            keepRunning = false;
+        } else if (state->moveLeftRequest && state->activePieceReady) {
             int newX = state->posX - 1;
             if (DoesPieceFit(state->currentPiece, state->rotation, newX, state->posY, state->board)) {
                 state->posX = newX;
@@ -28,14 +27,13 @@ void ProcessMoveLeft(GameState* state) {
 }
 
 void ProcessMoveRight(GameState* state) {
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->moveRightSem);
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->moveRightRequest && state->activePieceReady) {
+            keepRunning = false;
+        } else if (state->moveRightRequest && state->activePieceReady) {
             int newX = state->posX + 1;
             if (DoesPieceFit(state->currentPiece, state->rotation, newX, state->posY, state->board)) {
                 state->posX = newX;
@@ -47,14 +45,13 @@ void ProcessMoveRight(GameState* state) {
 }
 
 void ProcessRotate(GameState* state) {
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->rotateSem);
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->rotateRequest && state->activePieceReady) {
+            keepRunning = false;
+        } else if (state->rotateRequest && state->activePieceReady) {
             int newRotation = (state->rotation + 1) % 4;
             if (DoesPieceFit(state->currentPiece, newRotation, state->posX, state->posY, state->board)) {
                 state->rotation = newRotation;
@@ -66,15 +63,14 @@ void ProcessRotate(GameState* state) {
 }
 
 void ProcessSoftDrop(GameState* state) {
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->softDropSem);
         bool triggerLock = false;
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->softDropRequest && state->activePieceReady) {
+            keepRunning = false;
+        } else if (state->softDropRequest && state->activePieceReady) {
             int newY = state->posY + 1;
             if (DoesPieceFit(state->currentPiece, state->rotation, state->posX, newY, state->board)) {
                 state->posY = newY;
@@ -90,15 +86,14 @@ void ProcessSoftDrop(GameState* state) {
 }
 
 void ProcessGravity(GameState* state) {
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->gravitySem);
         bool triggerLock = false;
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->gravityTick && state->activePieceReady) {
+            keepRunning = false;
+        } else if (state->gravityTick && state->activePieceReady) {
             int newY = state->posY + 1;
             if (DoesPieceFit(state->currentPiece, state->rotation, state->posX, newY, state->board)) {
                 state->posY = newY;
@@ -114,16 +109,15 @@ void ProcessGravity(GameState* state) {
 }
 
 void ProcessLock(GameState* state) {
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->lockSem);
         bool triggerLine = false;
         bool triggerNext = false;
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->lockRequest) {
+            keepRunning = false;
+        } else if (state->lockRequest) {
             LockPiece(state->currentPiece, state->rotation, state->posX, state->posY, state->board);
             state->lockRequest = false;
             state->activePieceReady = false;
@@ -139,15 +133,14 @@ void ProcessLock(GameState* state) {
 }
 
 void ProcessLineClear(GameState* state) {
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->lineSem);
         bool triggerScore = false;
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->lineClearPending) {
+            keepRunning = false;
+        } else if (state->lineClearPending) {
             int cleared = ClearLines(state->board);
             state->lastLinesCleared = cleared;
             state->lineClearPending = false;
@@ -165,15 +158,14 @@ void ProcessLineClear(GameState* state) {
 
 void ProcessScore(GameState* state) {
     static const int ScoreTable[5] = {0, 100, 300, 500, 800};
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->scoreSem);
         bool triggerLevel = false;
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->scorePending) {
+            keepRunning = false;
+        } else if (state->scorePending) {
             int cleared = state->lastLinesCleared;
             state->lines += cleared;
             state->score += ScoreTable[cleared] * state->level;
@@ -189,14 +181,13 @@ void ProcessScore(GameState* state) {
 }
 
 void ProcessLevel(GameState* state) {
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->levelSem);
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->levelPending) {
+            keepRunning = false;
+        } else if (state->levelPending) {
             int newLevel = state->baseLevel + (state->lines / 10);
             state->level = newLevel;
             state->dropSpeed = 40 - (state->level * 3);
@@ -208,14 +199,13 @@ void ProcessLevel(GameState* state) {
 }
 
 void ProcessNextPiece(GameState* state) {
-    while (true) {
+    bool keepRunning = true;
+    while (keepRunning) {
         sem_wait(&state->nextPieceSem);
         pthread_mutex_lock(&state->stateMutex);
         if (state->shutdown) {
-            pthread_mutex_unlock(&state->stateMutex);
-            break;
-        }
-        if (state->nextPiecePending) {
+            keepRunning = false;
+        } else if (state->nextPiecePending) {
             state->currentPiece = state->nextPiece;
             state->nextPiece = rand() % 7;
             state->rotation = 0;
